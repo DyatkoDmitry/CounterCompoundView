@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CounterCompoundView</string>
+    <string name="tap">Tap</string>
+</resources>
