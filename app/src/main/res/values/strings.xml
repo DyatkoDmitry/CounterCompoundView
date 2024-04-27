@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">CounterCompoundView</string>
     <string name="tap">Tap</string>
+    <string name="positive">Update</string>
+    <string name="negative">Cancel</string>
+    <string name="title">UpdateCounter</string>
 </resources>
