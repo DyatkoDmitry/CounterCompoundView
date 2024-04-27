@@ -2,6 +2,8 @@ package com.example.countercompoundview
 
 import android.content.Context
 import android.graphics.drawable.PaintDrawable
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,21 +32,49 @@ class Counter @JvmOverloads constructor(
 
     private fun setButtonListener(){
         findViewById<MaterialButton>(R.id.tapButton).setOnClickListener {
-            updateCounterDialogFragment.show((context as MainActivity).supportFragmentManager, CONST.UPDATE_COUNTER);
+            if (!updateCounterDialogFragment.isAdded){
+                updateCounterDialogFragment.show((context as MainActivity).supportFragmentManager, CONST.UPDATE_COUNTER);
+            }
         }
     }
 
     private fun addCorner(extra:Int){
         corner+=extra
+
+        updateView()
+    }
+
+    private fun updateView(){
+        Log.d("TAG","updateView")
         findViewById<TextView>(R.id.corner).text = corner.toString()
 
-        val paintDrawable = PaintDrawable(ContextCompat.getColor(context, R.color.yellow))
-        paintDrawable.setCornerRadius(corner.toFloat())
+        val paintDrawable = PaintDrawable(ContextCompat.getColor(context, R.color.yellow)).apply {
+            setCornerRadius(corner.toFloat())
+        }
         findViewById<View>(R.id.square).background = paintDrawable
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        return Bundle().apply {
+            putInt(CONST.CORNER,corner)
+            putParcelable(CONST.SUPER_STATE,super.onSaveInstanceState())
+        }
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable) {
+        if(state is Bundle){
+            corner = state.getInt(CONST.CORNER)
+            super.onRestoreInstanceState(state.getParcelable(CONST.SUPER_STATE))
+        } else{
+            super.onRestoreInstanceState(state)
+        }
+        updateView()
     }
 }
 
 object CONST{
     const val EXTRA = 10
     const val UPDATE_COUNTER = "UpdateCounterDialogFragment"
+    const val CORNER = "Corner"
+    const val SUPER_STATE = "SuperState"
 }
