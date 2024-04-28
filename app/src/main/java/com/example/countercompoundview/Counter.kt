@@ -20,6 +20,7 @@ class Counter @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs), DefaultLifecycleObserver {
 
     private var corner:Int = 0
+    private var isWasReturn: Boolean = false
 
     private val onClickTap: () -> Unit = {
         addCorner(CONST.EXTRA)
@@ -57,11 +58,20 @@ class Counter @JvmOverloads constructor(
 
     override fun onStop(owner: LifecycleOwner) {
         addCorner(CONST.TURN_OFF_EXTRA)
+
+        if(!isWasReturn) isWasReturn = true
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        if(isWasReturn){
+            addCorner(CONST.RETURN_EXTRA)
+        }
     }
 
     override fun onSaveInstanceState(): Parcelable {
         return Bundle().apply {
             putInt(CONST.CORNER,corner)
+            putBoolean(CONST.IS_RETURN, isWasReturn)
             putParcelable(CONST.SUPER_STATE,super.onSaveInstanceState())
         }
     }
@@ -69,8 +79,9 @@ class Counter @JvmOverloads constructor(
     override fun onRestoreInstanceState(state: Parcelable) {
         if(state is Bundle){
             corner = state.getInt(CONST.CORNER)
+            isWasReturn = state.getBoolean(CONST.IS_RETURN)
             super.onRestoreInstanceState(state.getParcelable(CONST.SUPER_STATE))
-        } else{
+        }else{
             super.onRestoreInstanceState(state)
         }
         updateView()
@@ -80,7 +91,9 @@ class Counter @JvmOverloads constructor(
 object CONST{
     const val EXTRA = 10
     const val TURN_OFF_EXTRA = 5
+    const val RETURN_EXTRA = 2
     const val UPDATE_COUNTER = "UpdateCounterDialogFragment"
     const val CORNER = "Corner"
     const val SUPER_STATE = "SuperState"
+    const val IS_RETURN = "IsWasReturn"
 }
