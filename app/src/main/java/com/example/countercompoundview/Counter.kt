@@ -11,11 +11,13 @@ import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.button.MaterialButton
 
 class Counter @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
-) : ConstraintLayout(context, attrs) {
+) : ConstraintLayout(context, attrs), DefaultLifecycleObserver {
 
     private var corner:Int = 0
 
@@ -45,13 +47,16 @@ class Counter @JvmOverloads constructor(
     }
 
     private fun updateView(){
-        Log.d("TAG","updateView")
         findViewById<TextView>(R.id.corner).text = corner.toString()
 
         val paintDrawable = PaintDrawable(ContextCompat.getColor(context, R.color.yellow)).apply {
             setCornerRadius(corner.toFloat())
         }
         findViewById<View>(R.id.square).background = paintDrawable
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        addCorner(CONST.TURN_OFF_EXTRA)
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -74,6 +79,7 @@ class Counter @JvmOverloads constructor(
 
 object CONST{
     const val EXTRA = 10
+    const val TURN_OFF_EXTRA = 5
     const val UPDATE_COUNTER = "UpdateCounterDialogFragment"
     const val CORNER = "Corner"
     const val SUPER_STATE = "SuperState"
