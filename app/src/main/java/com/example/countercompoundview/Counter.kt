@@ -1,11 +1,11 @@
 package com.example.countercompoundview
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.graphics.drawable.PaintDrawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -28,10 +28,12 @@ class Counter @JvmOverloads constructor(
     }
 
     private val updateCounterDialogFragment = UpdateCounterDialogFragment(onClickTap)
+    private val sharedPreferences = context.getSharedPreferences(CONST.PREFERENCES_NAME, MODE_PRIVATE)
 
     init{
         LayoutInflater.from(context).inflate(R.layout.counter_compound_view, this, true)
         setButtonListener()
+        getFromSharedPreferences()
     }
 
     private fun setButtonListener(){
@@ -82,6 +84,22 @@ class Counter @JvmOverloads constructor(
         }
     }
 
+    // Deliberate choice for training project
+    override fun onDestroy(owner: LifecycleOwner) {
+        putToSharedPreferences()
+    }
+
+    private fun getFromSharedPreferences(){
+        corner = sharedPreferences.getInt(CONST.CORNER_SETTING,CONST.INITIAL_CORNER)
+        updateView()
+    }
+
+    private fun putToSharedPreferences(){
+        val sharedPreferencesEditor = sharedPreferences.edit()
+        sharedPreferencesEditor.putInt(CONST.CORNER_SETTING, corner)
+        sharedPreferencesEditor.apply()
+    }
+
     override fun onSaveInstanceState(): Parcelable {
         return Bundle().apply {
             putLong(CONST.START_TIME,startTime!!)
@@ -113,4 +131,7 @@ object CONST{
     const val SUPER_STATE = "SuperState"
     const val IS_RETURN = "IsWasReturn"
     const val START_TIME = "StartTime"
+    const val PREFERENCES_NAME = "PreferencesName"
+    const val CORNER_SETTING = "CornerSetting"
+    const val INITIAL_CORNER = 0
 }
