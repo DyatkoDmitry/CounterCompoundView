@@ -21,6 +21,7 @@ class Counter @JvmOverloads constructor(
 
     private var corner:Int = 0
     private var isWasReturn: Boolean = false
+    private var startTime: Long? = null
 
     private val onClickTap: () -> Unit = {
         addCorner(CONST.EXTRA)
@@ -60,16 +61,30 @@ class Counter @JvmOverloads constructor(
         addCorner(CONST.TURN_OFF_EXTRA)
 
         if(!isWasReturn) isWasReturn = true
+
+        startTime = System.currentTimeMillis()
     }
 
     override fun onResume(owner: LifecycleOwner) {
         if(isWasReturn){
             addCorner(CONST.RETURN_EXTRA)
         }
+        minusCorner()
+    }
+
+    private fun minusCorner(){
+        startTime?.let{
+            val endTime = System.currentTimeMillis()
+            val minutesInCreatedState = ((endTime - startTime!!) / 60000).toInt()
+            val minusCorner = minutesInCreatedState * 2
+            corner -= minusCorner
+            updateView()
+        }
     }
 
     override fun onSaveInstanceState(): Parcelable {
         return Bundle().apply {
+            putLong(CONST.START_TIME,startTime!!)
             putInt(CONST.CORNER,corner)
             putBoolean(CONST.IS_RETURN, isWasReturn)
             putParcelable(CONST.SUPER_STATE,super.onSaveInstanceState())
@@ -78,6 +93,7 @@ class Counter @JvmOverloads constructor(
 
     override fun onRestoreInstanceState(state: Parcelable) {
         if(state is Bundle){
+            startTime = state.getLong(CONST.START_TIME)
             corner = state.getInt(CONST.CORNER)
             isWasReturn = state.getBoolean(CONST.IS_RETURN)
             super.onRestoreInstanceState(state.getParcelable(CONST.SUPER_STATE))
@@ -96,4 +112,5 @@ object CONST{
     const val CORNER = "Corner"
     const val SUPER_STATE = "SuperState"
     const val IS_RETURN = "IsWasReturn"
+    const val START_TIME = "StartTime"
 }
